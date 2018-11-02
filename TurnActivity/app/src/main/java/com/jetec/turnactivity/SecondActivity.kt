@@ -1,9 +1,9 @@
 package com.jetec.turnactivity
 
-import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import com.jetec.turnactivity.customList.Colors
 import com.jetec.turnactivity.customList.Item
@@ -14,9 +14,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.anko.startActivity
-import org.jetbrains.anko.toast
 import java.util.*
-import kotlin.concurrent.thread
 
 
 class SecondActivity : AppCompatActivity() {
@@ -46,7 +44,6 @@ class SecondActivity : AppCompatActivity() {
         items.add(Item(3, Date().getTime(), Colors.GREEN,
                 "一首非常好聽的音樂！", "Hello content", "", "", 0.0, 0.0, 0))
 
-
         listView.adapter = itemAdapter
         listView.setOnItemClickListener { parent, view, position, id ->
             items[position].isSelected = !items[position].isSelected
@@ -58,6 +55,12 @@ class SecondActivity : AppCompatActivity() {
             Log.e("TAG", a.toString())
         }.start()
 
+
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_second, menu)
+        return super.onCreateOptionsMenu(menu)
     }
     suspend fun aaaa() {
         doSomeWork()

@@ -1,7 +1,5 @@
 package com.jetec.turnactivity.customList
 
-import android.graphics.Color
-import android.provider.CalendarContract
 import java.io.Serializable
 import java.util.*
 
@@ -35,7 +33,7 @@ class Item : Serializable {
     constructor() {
         title = ""
         content = ""
-        color = Colors.LIGHTGREY
+        color = Colors.LIGHTGRAY
     }
 
     constructor(id: Long, datetime: Long, color: Colors, title: String,

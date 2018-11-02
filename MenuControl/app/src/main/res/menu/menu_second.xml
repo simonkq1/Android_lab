@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/deleteIC_item"
+        android:icon="@android:drawable/ic_delete"
+        android:title="SEARCH"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/speak_item"
+        android:icon="@android:drawable/ic_btn_speak_now"
+        android:title="ADD"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/alert_item"
+        android:icon="@android:drawable/ic_dialog_alert"
+        android:title="REVERT"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/map_item"
+        android:icon="@android:drawable/ic_dialog_map"
+        android:title="DELETE"
+        app:showAsAction="always" />
+</menu>
