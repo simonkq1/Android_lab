@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">TurnActivity</string>
+    <string name="name">Name</string>
+    <string name="title">Title</string>
+    <string name="context">Context</string>
+</resources>
