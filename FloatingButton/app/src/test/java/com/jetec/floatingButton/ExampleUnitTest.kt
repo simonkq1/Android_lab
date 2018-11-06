@@ -1,4 +1,4 @@
-package com.jetec.movementbutton
+package com.jetec.floatingButton
 
 import org.junit.Test
 

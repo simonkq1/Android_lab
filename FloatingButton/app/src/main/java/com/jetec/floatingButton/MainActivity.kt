@@ -1,7 +1,5 @@
-package com.jetec.movementbutton
+package com.jetec.floatingButton
 
-import android.content.res.ColorStateList
-import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.content.ContextCompat
