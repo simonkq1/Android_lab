@@ -1,8 +1,10 @@
 package com.jetec.floatingButton
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.content.ContextCompat
+import android.support.v4.view.MenuItemCompat
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log
 import android.view.Menu
@@ -24,7 +26,6 @@ class MainActivity : AppCompatActivity() {
                     }.setActionTextColor(ContextCompat.getColor(this, R.color.white)).show()
 
         }
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
