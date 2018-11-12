@@ -5,12 +5,7 @@ import android.content.SharedPreferences
 import android.database.sqlite.SQLiteDatabase
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
-import org.jetbrains.anko.db.ManagedSQLiteOpenHelper
-import org.jetbrains.anko.db.MapRowParser
-import org.jetbrains.anko.db.insert
-import org.jetbrains.anko.db.select
 import org.jetbrains.anko.startActivity
 import java.lang.IllegalArgumentException
 
@@ -25,18 +20,19 @@ class MainActivity : AppCompatActivity() {
 
         val db = SQLiteHelper(this)
         db.use {
+
 //            insert("member", "account" to "Simon", "password" to "s40119")
-/*
+            /*
             val res = db.selectQuery("select * from member")
             for (i in res) {
                 for ((k, v) in i) {
                     Log.e("LOG", "Key: $k, Val: $v")
                 }
             }*/
-
         }
 //        db.delete("member", mapOf("id" to 2, "account" to "Simon"))
     }
+
 
 
     fun <T> putPreference(key: String, value: T) {

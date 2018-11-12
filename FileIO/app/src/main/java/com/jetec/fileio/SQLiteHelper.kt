@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import org.jetbrains.anko.db.ManagedSQLiteOpenHelper
+import org.jetbrains.anko.db.insert
 import org.jetbrains.anko.db.update
 
 class SQLiteHelper(var context: Context, private var DB_VERSION: Int = CURRENT_VRESION) : ManagedSQLiteOpenHelper(context, DB_NAME, null, CURRENT_VRESION) {
@@ -38,8 +39,8 @@ class SQLiteHelper(var context: Context, private var DB_VERSION: Int = CURRENT_V
         }
     }
 
-    fun selectQuery(sql: String): MutableList<HashMap<String, Any>> {
-        var dataList: MutableList<HashMap<String, Any>> = ArrayList<HashMap<String, Any>>()
+    fun selectQuery(sql: String): MutableList<MutableMap<String, Any>> {
+        var dataList: MutableList<MutableMap<String, Any>> = ArrayList<MutableMap<String, Any>>()
         use {
             val res = this.rawQuery(sql, null)
             if (res.moveToFirst()) {
@@ -95,6 +96,14 @@ class SQLiteHelper(var context: Context, private var DB_VERSION: Int = CURRENT_V
         }
         return count
 
+    }
+
+    fun insert(keyValue: Pair<String, Any?>): Long {
+        var count: Long = 0
+        use {
+            count = insert(TABLE_NAME, keyValue)
+        }
+        return count
     }
 
 }

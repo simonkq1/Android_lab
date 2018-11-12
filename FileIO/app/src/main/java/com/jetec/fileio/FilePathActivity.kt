@@ -14,12 +14,17 @@ class FilePathActivity: AppCompatActivity() {
 
         val publicPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString()
         val privatePath = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-        val path = "系統公共儲存路徑位於$publicPath\n\nApp私有儲存路徑位於$privatePath"
+        val path = "系統公共儲存路徑位於$publicPath\n\nApp私有儲存路徑位於${privatePath.path}"
         Log.e("LOG", "\n"+path)
         if (privatePath == null) return
         File(privatePath.toString() + "hello.txt").writeText("Hello World", Charsets.UTF_8)
         val contextString: String = File(privatePath.toString() + "hello.txt").readText(Charsets.UTF_8)
         Log.e("LOG2", contextString)
+
+        val a = arrayListOf<MutableMap<String, Any>>()
+        a.add(mutableMapOf("a" to 1))
+
+
     }
 
 }
