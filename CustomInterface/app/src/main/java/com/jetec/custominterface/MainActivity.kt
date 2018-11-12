@@ -17,6 +17,8 @@ class MainActivity : AppCompatActivity() {
         }
         main_button.setOnClickListener {
             toast(main_button.text)
+
+            
         }
 
     }
