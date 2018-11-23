@@ -8,7 +8,10 @@
         android:height="60dp"/>
     <stroke android:width="5dp"
         android:color="@color/colorPrimary" />
-    <solid ></solid>
+    <gradient
+        android:type="radial">
+
+    </gradient>
     <corners android:radius="30dp"/>
 
 

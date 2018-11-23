@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
         main_button.setOnClickListener {
             toast(main_button.text)
 
-            
+
         }
 
     }
@@ -34,8 +34,11 @@ class MainActivity : AppCompatActivity() {
             this.shape = GradientDrawable.OVAL
             this.setSize(diameter, diameter)
             this.cornerRadius = (diameter / 2).toFloat()
-            this.setColor(ContextCompat.getColor(this@MainActivity, R.color.colorBlue))
+//            this.setColor(ContextCompat.getColor(this@MainActivity, R.color.colorBlue))
 
+            this.colors = intArrayOf(R.color.colorBlue, R.color.colorAccent)
+            this.gradientType = GradientDrawable.LINEAR_GRADIENT
+            this.setGradientCenter(0.5f, 0.5f)
         }
         main_button.background = gd
 
