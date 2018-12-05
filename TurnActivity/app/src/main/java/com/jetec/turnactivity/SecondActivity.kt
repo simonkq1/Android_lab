@@ -50,6 +50,7 @@ class SecondActivity : AppCompatActivity() {
             itemAdapter.set(position, items[position])
 //            super.onBackPressed()
         }
+
         GlobalScope.launch {
             val a = doSomeWork()
             Log.e("TAG", a.toString())
