@@ -117,14 +117,14 @@ class MainActivity : AppCompatActivity() {
         }
         if (enable){
             mScanning = true
-            mBluetoothAdapter?.startLeScan(mLeScanCallback)
+            mBluetoothAdapter?.startLeScan(bleScanCallback)
             TimeUtilWithoutKotlin.Delay(8, TimeUnit.SECOND).setTodo {
-                mBluetoothAdapter?.stopLeScan(mLeScanCallback)
+                mBluetoothAdapter?.stopLeScan(bleScanCallback)
                 mScanning = false
             }
         }else {
             //停止扫描，在连接设备时最好调用 stopLeScan()
-            mBluetoothAdapter?.stopLeScan(mLeScanCallback)
+            mBluetoothAdapter?.stopLeScan(bleScanCallback)
             mScanning = false
         }
     }*/

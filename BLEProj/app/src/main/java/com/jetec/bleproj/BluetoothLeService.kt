@@ -1,43 +1,56 @@
 package com.jetec.bleproj
 
-import android.app.Dialog
+import android.app.Service
 import android.bluetooth.*
 import android.content.Context
-import android.os.Bundle
+import android.bluetooth.BluetoothClass as BClass
+import android.content.Intent
+import android.os.IBinder
 import android.util.Log
-import android.view.Window
-import android.view.WindowManager
-import kotlinx.android.synthetic.main.scan_dialog.*
 import java.util.*
 
-class ScanDialogViewController(context: Context) : Dialog(context) {
+enum class BluetoothStatus {
+    NONE,
+    CONNECTING,
+    CONNECTED,
+    MAIN_ACTIVITY,
+    DOWNLOADING,
+    GETTING_ORIGINAL_DATA
+}
 
-    var bluetoothManager: BluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-    var mBluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
-    var devices: ArrayList<BluetoothDevice> = arrayListOf()
-    var bleScanCallback: BluetoothAdapter.LeScanCallback? = null
-    var gatt: BluetoothGatt? = null
+class BluetoothLeService(context: Context, device: BluetoothDevice) {
+
+    var device: BluetoothDevice? = null
+    var characteristic: BluetoothGattCharacteristic? = null
+    var connectedGATT: BluetoothGatt? = null
     var connectedCharacteristic: BluetoothGattCharacteristic? = null
     var writableCharacteristic: BluetoothGattCharacteristic? = null
-    var service: BluetoothLeService? = null
-/*
+    var delegate: Context? = null
+    var status: BluetoothStatus = BluetoothStatus.NONE
+
     val gattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
 
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
+
             if (gatt == null) {
                 return
             }
-            this@ScanDialogViewController.gatt = gatt
 
-            if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                gatt.close()
-            }
-            if (newState == BluetoothProfile.STATE_CONNECTING) {
-                //设备在连接中
-            }
+            if (this@BluetoothLeService.status == BluetoothStatus.CONNECTING) {
 
-            gatt.discoverServices()
+                this@BluetoothLeService.connectedGATT = gatt
+
+                if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                    gatt.close()
+                }
+                if (newState == BluetoothProfile.STATE_CONNECTING) {
+                    //设备在连接中
+                }
+
+                gatt.discoverServices()
+
+            }
         }
 
         override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
@@ -51,12 +64,11 @@ class ScanDialogViewController(context: Context) : Dialog(context) {
 
                     Log.e("LOG", ii.uuid.toString())
                     if (ii.properties == BluetoothGattCharacteristic.PROPERTY_NOTIFY) {
-
                         if (gatt.setCharacteristicNotification(ii, true)) {
-                            this@ScanDialogViewController.connectedCharacteristic = ii
-                            this@ScanDialogViewController.writableCharacteristic = i.getCharacteristic(UUID.fromString(UART_UUIDS.uartRXCharacteristicUUIDString))
+                            this@BluetoothLeService.connectedCharacteristic = ii
+                            this@BluetoothLeService.writableCharacteristic = i.getCharacteristic(UUID.fromString(UART_UUIDS.uartRXCharacteristicUUIDString))
 
-                            if (this@ScanDialogViewController.writableCharacteristic == null) {
+                            if (this@BluetoothLeService.writableCharacteristic == null) {
                                 Log.e("LOG", "C ERROR")
                                 return
                             }
@@ -65,22 +77,20 @@ class ScanDialogViewController(context: Context) : Dialog(context) {
                             val descriptor: BluetoothGattDescriptor = ii.getDescriptor(UUID.fromString(UART_UUIDS.TXDescriptor))
 
                             descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+
                             if (gatt.writeDescriptor(descriptor)) {
-
-                                Log.e("LOG", "Jetec Success")
-                            } else {
-
-                                Log.e("LOG", "Jetec Error")
+                                Log.e("LOG", "writeDescriptor Success")
                             }
                             Log.e("LOG", "is Notification")
 
                             return
                         } else {
+                            // notification failed
                             Log.e("LOG", "Notification Failed")
                         }
                     } else {
+                        // is not notify
                         Log.e("LOG", "ERROR D")
-
                     }
                 }
             }
@@ -89,7 +99,7 @@ class ScanDialogViewController(context: Context) : Dialog(context) {
 
         override fun onDescriptorWrite(gatt: BluetoothGatt?, descriptor: BluetoothGattDescriptor?, status: Int) {
             super.onDescriptorWrite(gatt, descriptor, status)
-            if (this@ScanDialogViewController.writableCharacteristic == null || gatt == null) {
+            if (this@BluetoothLeService.writableCharacteristic == null || gatt == null) {
                 //获取特征失败,直接断开连接
 
                 gatt?.disconnect()
@@ -98,9 +108,11 @@ class ScanDialogViewController(context: Context) : Dialog(context) {
 
             //mSendValue 即要往硬件发送的数据
             //如果这里写入数据成功会回调下面的 onCharacteristicWrite() 方法
-            this@ScanDialogViewController.writableCharacteristic!!.value = "Jetec".toByteArray()
-            if (!gatt.writeCharacteristic(this@ScanDialogViewController.writableCharacteristic)) {
+            this@BluetoothLeService.writableCharacteristic!!.value = "Jetec".toByteArray()
+
+            if (!gatt.writeCharacteristic(this@BluetoothLeService.writableCharacteristic)) {
                 //写入数据失败,断开连接
+                Log.e("LOG", "write Error.")
                 gatt.disconnect()
             }
 
@@ -109,22 +121,36 @@ class ScanDialogViewController(context: Context) : Dialog(context) {
 
         override fun onDescriptorRead(gatt: BluetoothGatt?, descriptor: BluetoothGattDescriptor?, status: Int) {
             super.onDescriptorRead(gatt, descriptor, status)
-            if (descriptor == null) {
-                return
-            }
+            if (descriptor == null ) { return }
+
             Log.e("LOG", descriptor.value.toString())
         }
 
         override fun onCharacteristicWrite(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?, status: Int) {
             super.onCharacteristicWrite(gatt, characteristic, status)
             Log.e("LOG", "onCharacteristicWrite")
+            if (characteristic == null) {return}
+            Log.e("LOG", characteristic.getStringValue(0))
         }
 
         override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
             super.onCharacteristicChanged(gatt, characteristic)
-
+            //TODO Receive Data
             Log.e("LOG", characteristic!!.getStringValue(0))
             Log.e("LOG", "onCharacteristicChanged")
+
+            val receiveString = characteristic.getStringValue(0)
+            when (receiveString){
+                "OK" -> {
+                    Log.e("LOG", "AAAA")
+                    Thread.sleep(100)
+                    this@BluetoothLeService.sendData("get")
+                }
+                else -> {
+
+                }
+
+            }
         }
 
 
@@ -135,61 +161,28 @@ class ScanDialogViewController(context: Context) : Dialog(context) {
 
 
     }
-*/
 
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        this.window.requestFeature(Window.FEATURE_NO_TITLE)
-
-        setContentView(R.layout.scan_dialog)
-
-        this.window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-        this.window.setLayout((window.getWidth() * 0.8).toInt(), (window.getHeight() * 0.8).toInt())
-
-
-        var mScanning: Boolean = false
-
-        var mDevice: BluetoothDevice? = null
-        //扫描结果的回调，开始扫描后会多次调用该方法
-        var devicesAdapter = DevicesAdapter(context, R.layout.scan_table_cell, devices)
-
-        setOnItemClickListener()
-
-        bleScanCallback = BluetoothAdapter.LeScanCallback { device, rssi, scanRecord ->
-            //通过对比设备的 mac 地址获取需要的实例
-//            Log.e("Log", devices.indexOf(device).toString())
-
-            if (devices.indexOf(device) == -1) {
-                devices.add(device)
-                devicesAdapter = DevicesAdapter(context, R.layout.scan_table_cell, devices)
-                tableView.adapter = devicesAdapter
-            }
-
-        }
-        mBluetoothAdapter.startLeScan(bleScanCallback)
-
+    init {
+        this.device = device
+        this.device!!.connectGatt(context, true, this.gattCallback)
     }
 
-    fun setOnItemClickListener() {
-        tableView.setOnItemClickListener { parent, view, position, id ->
-            Log.e("TABLE", position.toString())
-            Global.service = BluetoothLeService(context, devices[position])
-            Global.service!!.status = BluetoothStatus.CONNECTING
-        }
+    fun sendData(value: String) {
+        Log.e("LOG", "A")
+        if (this.writableCharacteristic == null) {return}
+        Log.e("LOG", "B")
+        this.writableCharacteristic!!.value = value.toByteArray(Charsets.UTF_8)
+        this.connectedGATT!!.writeCharacteristic(this.writableCharacteristic)
     }
 
-
-    override fun onStop() {
-        super.onStop()
-        Log.e("LIFE", "STOP")
-        mBluetoothAdapter.stopLeScan(bleScanCallback)
+    fun BluetoothGattCharacteristic.sendData(gatt: BluetoothGatt = this@BluetoothLeService.connectedGATT!!, value: String) {
+        this.value = value.toByteArray(Charsets.UTF_8)
+        gatt.writeCharacteristic(this)
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        Log.e("LIFE", "BackPressed")
+    fun BluetoothGattCharacteristic.sendData(gatt: BluetoothGatt = this@BluetoothLeService.connectedGATT!!, value: ByteArray) {
+        this.value = value
+        gatt.writeCharacteristic(this)
     }
 
 
