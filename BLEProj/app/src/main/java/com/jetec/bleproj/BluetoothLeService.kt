@@ -68,10 +68,7 @@ class BluetoothLeService(context: Context, device: BluetoothDevice) {
                             this@BluetoothLeService.connectedCharacteristic = ii
                             this@BluetoothLeService.writableCharacteristic = i.getCharacteristic(UUID.fromString(UART_UUIDS.uartRXCharacteristicUUIDString))
 
-                            if (this@BluetoothLeService.writableCharacteristic == null) {
-                                Log.e("LOG", "C ERROR")
-                                return
-                            }
+                            if (this@BluetoothLeService.writableCharacteristic == null) { return }
 //                            Log.e("LOG", this@ScanDialogViewController.writableCharacteristic!!.uuid.toString())
 //                            Log.e("LOG", ii.uuid.toString())
                             val descriptor: BluetoothGattDescriptor = ii.getDescriptor(UUID.fromString(UART_UUIDS.TXDescriptor))
@@ -136,15 +133,39 @@ class BluetoothLeService(context: Context, device: BluetoothDevice) {
         override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
             super.onCharacteristicChanged(gatt, characteristic)
             //TODO Receive Data
-            Log.e("LOG", characteristic!!.getStringValue(0))
-            Log.e("LOG", "onCharacteristicChanged")
+            if (characteristic == null) {return}
 
-            val receiveString = characteristic.getStringValue(0)
-            when (receiveString){
-                "OK" -> {
-                    Log.e("LOG", "AAAA")
-                    Thread.sleep(100)
-                    this@BluetoothLeService.sendData("get")
+            val x = characteristic.getStringValue(0)
+            Log.e("LOG", "============ Receive Data ============")
+            Log.e("LOG", x ?: "")
+            when {
+                x == "OK" -> {
+                    Global.isConnected = true
+//                    this@BluetoothLeService.sendData("get")
+                }
+                x.startsWith("BT-") -> {
+                    Global.deviceModel = DeviceModel(x)
+                }
+                x.startsWith(LCDCommand.ENGE) -> {
+                    val pass = x.replace(LCDCommand.ENGE, "")
+
+                    Log.e("LOG", pass)
+                    Global.userPassword.put(LCDCommand.ENGE, pass)
+                    this@BluetoothLeService.checkPassword()
+                }
+                x.startsWith(LCDCommand.PASS) -> {
+                    val pass = x.replace(LCDCommand.PASS, "")
+                    Global.userPassword.put(LCDCommand.PASS, pass)
+                    this@BluetoothLeService.checkPassword()
+                }
+                x.startsWith(LCDCommand.GUES) -> {
+                    val pass = x.replace(LCDCommand.GUES, "")
+                    Global.userPassword.put(LCDCommand.GUES, pass)
+                    this@BluetoothLeService.checkPassword()
+                }
+                x.startsWith(LCDCommand.INIT) -> {
+                    val pass = x.replace(LCDCommand.INIT, "")
+                    Global.userPassword.put(LCDCommand.INIT, pass)
                 }
                 else -> {
 
@@ -164,13 +185,12 @@ class BluetoothLeService(context: Context, device: BluetoothDevice) {
 
     init {
         this.device = device
+        this.delegate = context
         this.device!!.connectGatt(context, true, this.gattCallback)
     }
 
     fun sendData(value: String) {
-        Log.e("LOG", "A")
         if (this.writableCharacteristic == null) {return}
-        Log.e("LOG", "B")
         this.writableCharacteristic!!.value = value.toByteArray(Charsets.UTF_8)
         this.connectedGATT!!.writeCharacteristic(this.writableCharacteristic)
     }

@@ -18,6 +18,8 @@ import android.provider.Settings
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.BaseAdapter
 import android.widget.ListAdapter
 import kotlinx.android.synthetic.main.activity_main.*
@@ -25,9 +27,9 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
 
-
     var devices: ArrayList<BluetoothDevice> = arrayListOf()
 
+    var menu: Menu? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -37,10 +39,10 @@ class MainActivity : AppCompatActivity() {
 
             dialog.show()
 
-
         }
 
     }
+
     var devicesAdapter: DevicesAdapter? = null
 
     override fun onResume() {
@@ -65,7 +67,32 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        this.menu = menu
+        return super.onCreateOptionsMenu(menu)
 
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item!!.itemId) {
+            R.id.disconnect -> {
+                disconnect()
+            }
+        }
+
+
+        return super.onOptionsItemSelected(item)
+    }
+
+
+    fun disconnect() {
+        if (!Global.isConnected) {return}
+        Global.service!!.connectedGATT!!.setCharacteristicNotification(Global.service!!.connectedCharacteristic!!, false)
+        Global.service!!.connectedGATT!!.disconnect()
+        Global.service = null
+        Global.isConnected = false
+    }
 
 
     fun locationCheck() {
@@ -98,7 +125,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun initBluetoothAdapter(){
+    fun initBluetoothAdapter() {
         val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         val bluetoothAdapter = bluetoothManager.adapter
         //如果蓝牙没有打开则向用户申请

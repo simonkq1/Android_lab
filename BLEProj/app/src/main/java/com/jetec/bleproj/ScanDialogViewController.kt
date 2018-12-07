@@ -9,6 +9,7 @@ import android.view.Window
 import android.view.WindowManager
 import kotlinx.android.synthetic.main.scan_dialog.*
 import java.util.*
+import kotlin.concurrent.schedule
 
 class ScanDialogViewController(context: Context) : Dialog(context) {
 
@@ -177,6 +178,38 @@ class ScanDialogViewController(context: Context) : Dialog(context) {
             Log.e("TABLE", position.toString())
             Global.service = BluetoothLeService(context, devices[position])
             Global.service!!.status = BluetoothStatus.CONNECTING
+//            val l: Dialog =
+            Timer("checkConnect", false).schedule(1000) {
+                checkConnectionWithOk()
+            }
+            this.dismiss()
+        }
+    }
+
+    fun checkConnectionWithOk() {
+        if (Global.service == null) {return}
+        if (Global.isConnected) {
+            if (Global.deviceModel == null) {
+                Global.deviceModel = DeviceModel("BT-2-TH")
+            }
+            // is Connect
+            Global.service!!.sendData("ENGEWD")
+            Thread.sleep(100)
+            Global.service!!.sendData("PASSWD")
+            Thread.sleep(100)
+            Global.service!!.sendData("GUESWD")
+            Thread.sleep(100)
+            Global.service!!.sendData("INITWD")
+        }else {
+            // connect Failed
+
+            if (!Global.isConnected) {return}
+            Global.service!!.connectedGATT!!.setCharacteristicNotification(Global.service!!.connectedCharacteristic!!, false)
+            Global.service!!.connectedGATT!!.disconnect()
+            Global.service = null
+            Global.isConnected = false
+
+
         }
     }
 
