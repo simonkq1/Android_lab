@@ -1,11 +1,8 @@
 package com.jetec.bleproj
 
 import android.app.Dialog
-import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
-import android.bluetooth.le.BluetoothLeScanner
-import android.bluetooth.le.ScanCallback
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -15,30 +12,27 @@ import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.BaseAdapter
-import android.widget.ListAdapter
+import com.jetec.bleproj.Global.*
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
 
     var devices: ArrayList<BluetoothDevice> = arrayListOf()
-
     var menu: Menu? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val gd: GradientDrawable = GradientDrawable()
         scanButton.setOnClickListener {
             val dialog: Dialog = ScanDialogViewController(this)
-
             dialog.show()
-
         }
 
     }
@@ -61,8 +55,40 @@ class MainActivity : AppCompatActivity() {
             this.setGradientCenter(0.5f, 0.5f)
         }
         scanButton.background = gd
-
         /*
+        val a = DeviceModel("BT-3-ICILM")
+        var keys = ArrayList(a.defaultSettings.keys)
+        var n: Int = 0
+        Log.e("LOG", keys.toString())
+        for (i in 0 until a.deviceRowNumber) {
+            val ind = keys.indexOf("DP" + (i + 1).toString())
+            if (ind != -1) {
+                keys.run {
+                    val tmp = keys[n]
+                    this[n] = this[ind]
+                    this[ind] = tmp
+                }
+                n += 1
+            }
+        }
+
+        for (i in keys) {
+            var code: String
+            val value = a.defaultSettings[i]
+            when (i) {
+                LCDCommand.NAME -> {
+                    code = i + value.toString()
+                }
+                LCDCommand.INT -> {
+                    code = i + String.format("%05d", value as Int)
+                }
+                else -> {
+                    code = (value as Double).toSendableString(i) ?: ""
+                }
+            }
+            Log.e("LOG", code)
+        }
+
 */
 
     }
@@ -87,7 +113,9 @@ class MainActivity : AppCompatActivity() {
 
 
     fun disconnect() {
-        if (!Global.isConnected) {return}
+        if (!Global.isConnected) {
+            return
+        }
         Global.service!!.connectedGATT!!.setCharacteristicNotification(Global.service!!.connectedCharacteristic!!, false)
         Global.service!!.connectedGATT!!.disconnect()
         Global.service = null

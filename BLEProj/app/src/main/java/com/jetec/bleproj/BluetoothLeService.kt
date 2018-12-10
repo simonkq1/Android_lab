@@ -1,12 +1,15 @@
 package com.jetec.bleproj
 
-import android.app.Service
 import android.bluetooth.*
 import android.content.Context
 import android.bluetooth.BluetoothClass as BClass
-import android.content.Intent
-import android.os.IBinder
 import android.util.Log
+import com.jetec.bleproj.Global.ModelClass.DeviceModel
+import com.jetec.bleproj.Global.Global
+import com.jetec.bleproj.Global.LCDCommand
+import com.jetec.bleproj.Global.UART_UUIDS
+import com.jetec.bleproj.Global.codeToDoubleValue
+import kotlinx.android.synthetic.main.scan_dialog.*
 import java.util.*
 
 enum class BluetoothStatus {
@@ -68,7 +71,9 @@ class BluetoothLeService(context: Context, device: BluetoothDevice) {
                             this@BluetoothLeService.connectedCharacteristic = ii
                             this@BluetoothLeService.writableCharacteristic = i.getCharacteristic(UUID.fromString(UART_UUIDS.uartRXCharacteristicUUIDString))
 
-                            if (this@BluetoothLeService.writableCharacteristic == null) { return }
+                            if (this@BluetoothLeService.writableCharacteristic == null) {
+                                return
+                            }
 //                            Log.e("LOG", this@ScanDialogViewController.writableCharacteristic!!.uuid.toString())
 //                            Log.e("LOG", ii.uuid.toString())
                             val descriptor: BluetoothGattDescriptor = ii.getDescriptor(UUID.fromString(UART_UUIDS.TXDescriptor))
@@ -118,7 +123,9 @@ class BluetoothLeService(context: Context, device: BluetoothDevice) {
 
         override fun onDescriptorRead(gatt: BluetoothGatt?, descriptor: BluetoothGattDescriptor?, status: Int) {
             super.onDescriptorRead(gatt, descriptor, status)
-            if (descriptor == null ) { return }
+            if (descriptor == null) {
+                return
+            }
 
             Log.e("LOG", descriptor.value.toString())
         }
@@ -126,14 +133,18 @@ class BluetoothLeService(context: Context, device: BluetoothDevice) {
         override fun onCharacteristicWrite(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?, status: Int) {
             super.onCharacteristicWrite(gatt, characteristic, status)
             Log.e("LOG", "onCharacteristicWrite")
-            if (characteristic == null) {return}
+            if (characteristic == null) {
+                return
+            }
             Log.e("LOG", characteristic.getStringValue(0))
         }
 
         override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
             super.onCharacteristicChanged(gatt, characteristic)
             //TODO Receive Data
-            if (characteristic == null) {return}
+            if (characteristic == null) {
+                return
+            }
 
             val x = characteristic.getStringValue(0)
             Log.e("LOG", "============ Receive Data ============")
@@ -141,10 +152,9 @@ class BluetoothLeService(context: Context, device: BluetoothDevice) {
             when {
                 x == "OK" -> {
                     Global.isConnected = true
-//                    this@BluetoothLeService.sendData("get")
                 }
                 x.startsWith("BT-") -> {
-                    Global.deviceModel = DeviceModel(x)
+                    Global.JTCData.deviceModel = DeviceModel(x)
                 }
                 x.startsWith(LCDCommand.ENGE) -> {
                     val pass = x.replace(LCDCommand.ENGE, "")
@@ -167,6 +177,34 @@ class BluetoothLeService(context: Context, device: BluetoothDevice) {
                     val pass = x.replace(LCDCommand.INIT, "")
                     Global.userPassword.put(LCDCommand.INIT, pass)
                 }
+                x.startsWith("PV")
+                        || x.startsWith("EH")
+                        || x.startsWith("EL")
+                        || x.startsWith("CR")
+                        || x.startsWith("IH")
+                        || x.startsWith("IL")
+                        || x.startsWith("DP") -> {
+                    val code = x.substring(0..2)
+                    val value = x.codeToDoubleValue()
+                    if (value != null) {
+                        Global.JTCData.deviceData[code] = value
+                    }
+                }
+                x.startsWith(LCDCommand.NAME) -> {
+                    val name = x.replace(LCDCommand.NAME, "")
+                    Global.JTCData.deviceData[LCDCommand.NAME] = name
+                }
+                x.startsWith(LCDCommand.INT) -> {
+                    val name = x.replace(LCDCommand.INT, "")
+                    Global.JTCData.deviceData[LCDCommand.NAME] = name
+                }
+                x.startsWith("OVER") -> {
+                    if (this@BluetoothLeService.status == BluetoothStatus.GETTING_ORIGINAL_DATA && delegate is SettingActivity) {
+                        (delegate as SettingActivity).reloadData()
+                        this@BluetoothLeService.status = BluetoothStatus.NONE
+                    }
+                }
+
                 else -> {
 
                 }
@@ -189,8 +227,11 @@ class BluetoothLeService(context: Context, device: BluetoothDevice) {
         this.device!!.connectGatt(context, true, this.gattCallback)
     }
 
+
     fun sendData(value: String) {
-        if (this.writableCharacteristic == null) {return}
+        if (this.writableCharacteristic == null) {
+            return
+        }
         this.writableCharacteristic!!.value = value.toByteArray(Charsets.UTF_8)
         this.connectedGATT!!.writeCharacteristic(this.writableCharacteristic)
     }

@@ -1,4 +1,4 @@
-package com.jetec.bleproj
+package com.jetec.bleproj.Global
 
 class UART_UUIDS {
     companion object {

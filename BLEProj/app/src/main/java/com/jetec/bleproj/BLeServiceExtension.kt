@@ -1,6 +1,8 @@
 package com.jetec.bleproj
 
 import android.util.Log
+import com.jetec.bleproj.Global.Global
+import com.jetec.bleproj.Global.LCDCommand
 import org.jetbrains.anko.runOnUiThread
 import org.jetbrains.anko.toast
 

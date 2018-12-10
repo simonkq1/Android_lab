@@ -3,11 +3,19 @@ package com.jetec.bleproj
 import android.app.Dialog
 import android.bluetooth.*
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.support.v4.content.ContextCompat.startActivity
 import android.util.Log
 import android.view.Window
 import android.view.WindowManager
+import com.jetec.bleproj.Global.ModelClass.DeviceModel
+import com.jetec.bleproj.Global.Global
+import com.jetec.bleproj.Global.getHeight
+import com.jetec.bleproj.Global.getWidth
 import kotlinx.android.synthetic.main.scan_dialog.*
+import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.toast
 import java.util.*
 import kotlin.concurrent.schedule
 
@@ -154,7 +162,7 @@ class ScanDialogViewController(context: Context) : Dialog(context) {
 
         var mDevice: BluetoothDevice? = null
         //扫描结果的回调，开始扫描后会多次调用该方法
-        var devicesAdapter = DevicesAdapter(context, R.layout.scan_table_cell, devices)
+        var devicesAdapter: DevicesAdapter
 
         setOnItemClickListener()
 
@@ -170,27 +178,30 @@ class ScanDialogViewController(context: Context) : Dialog(context) {
 
         }
         mBluetoothAdapter.startLeScan(bleScanCallback)
-
     }
 
     fun setOnItemClickListener() {
         tableView.setOnItemClickListener { parent, view, position, id ->
             Log.e("TABLE", position.toString())
+
             Global.service = BluetoothLeService(context, devices[position])
             Global.service!!.status = BluetoothStatus.CONNECTING
 //            val l: Dialog =
             Timer("checkConnect", false).schedule(1000) {
                 checkConnectionWithOk()
             }
-            this.dismiss()
+
+//            this.dismiss()
+
+
         }
     }
 
     fun checkConnectionWithOk() {
         if (Global.service == null) {return}
         if (Global.isConnected) {
-            if (Global.deviceModel == null) {
-                Global.deviceModel = DeviceModel("BT-2-TH")
+            if (Global.JTCData.deviceModel == null) {
+                Global.JTCData.deviceModel = DeviceModel("BT-2-TH")
             }
             // is Connect
             Global.service!!.sendData("ENGEWD")
@@ -199,7 +210,11 @@ class ScanDialogViewController(context: Context) : Dialog(context) {
             Thread.sleep(100)
             Global.service!!.sendData("GUESWD")
             Thread.sleep(100)
-            Global.service!!.sendData("INITWD")
+//            Global.service!!.sendData("INITWD")
+//            Thread.sleep(100)
+
+            this.dismiss()
+            context.startActivity<SettingActivity>()
         }else {
             // connect Failed
 
@@ -208,21 +223,22 @@ class ScanDialogViewController(context: Context) : Dialog(context) {
             Global.service!!.connectedGATT!!.disconnect()
             Global.service = null
             Global.isConnected = false
-
+            context.toast("Failed")
 
         }
+
     }
 
 
     override fun onStop() {
         super.onStop()
-        Log.e("LIFE", "STOP")
+        Log.e("LIFE_CYCLE", "STOP")
         mBluetoothAdapter.stopLeScan(bleScanCallback)
     }
 
     override fun onBackPressed() {
         super.onBackPressed()
-        Log.e("LIFE", "BackPressed")
+        Log.e("LIFE_CYCLE", "BackPressed")
     }
 
 
