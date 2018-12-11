@@ -9,10 +9,8 @@ import android.support.v4.content.ContextCompat.startActivity
 import android.util.Log
 import android.view.Window
 import android.view.WindowManager
+import com.jetec.bleproj.Global.*
 import com.jetec.bleproj.Global.ModelClass.DeviceModel
-import com.jetec.bleproj.Global.Global
-import com.jetec.bleproj.Global.getHeight
-import com.jetec.bleproj.Global.getWidth
 import kotlinx.android.synthetic.main.scan_dialog.*
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
@@ -29,6 +27,7 @@ class ScanDialogViewController(context: Context) : Dialog(context) {
     var connectedCharacteristic: BluetoothGattCharacteristic? = null
     var writableCharacteristic: BluetoothGattCharacteristic? = null
     var service: BluetoothLeService? = null
+    var connectedAddress: String? by Preference(context, "connectedAddress", "Key Not Found")
 /*
     val gattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
 
@@ -171,13 +170,21 @@ class ScanDialogViewController(context: Context) : Dialog(context) {
 //            Log.e("Log", devices.indexOf(device).toString())
 
             if (devices.indexOf(device) == -1) {
-                devices.add(device)
+                if (connectedAddress == device.address) {
+                    devices.add(0, device)
+                }else {
+                    devices.add(device)
+                }
                 devicesAdapter = DevicesAdapter(context, R.layout.scan_table_cell, devices)
                 tableView.adapter = devicesAdapter
             }
 
         }
         mBluetoothAdapter.startLeScan(bleScanCallback)
+        if (connectedAddress != null) {
+            Log.e("LOG", connectedAddress)
+        }
+
     }
 
     fun setOnItemClickListener() {

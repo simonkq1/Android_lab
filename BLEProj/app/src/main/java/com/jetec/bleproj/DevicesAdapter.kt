@@ -41,6 +41,7 @@ class DevicesAdapter(context: Context,
 
         return itemView
     }
+
     operator fun set (index: Int, item: BluetoothDevice){
         if (index >= 0 && index < items.size) {
             items[index] = item

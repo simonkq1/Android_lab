@@ -1,14 +1,13 @@
 package com.jetec.bleproj
 
+import android.annotation.SuppressLint
 import android.bluetooth.*
 import android.content.Context
+import android.content.SharedPreferences
 import android.bluetooth.BluetoothClass as BClass
 import android.util.Log
+import com.jetec.bleproj.Global.*
 import com.jetec.bleproj.Global.ModelClass.DeviceModel
-import com.jetec.bleproj.Global.Global
-import com.jetec.bleproj.Global.LCDCommand
-import com.jetec.bleproj.Global.UART_UUIDS
-import com.jetec.bleproj.Global.codeToDoubleValue
 import kotlinx.android.synthetic.main.scan_dialog.*
 import java.util.*
 
@@ -30,8 +29,10 @@ class BluetoothLeService(context: Context, device: BluetoothDevice) {
     var writableCharacteristic: BluetoothGattCharacteristic? = null
     var delegate: Context? = null
     var status: BluetoothStatus = BluetoothStatus.NONE
+    var connectedAddress: String by Preference(context, "connectedAddress", "")
 
     val gattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
+
 
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
@@ -46,12 +47,17 @@ class BluetoothLeService(context: Context, device: BluetoothDevice) {
 
                 if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     gatt.close()
+                    return
                 }
                 if (newState == BluetoothProfile.STATE_CONNECTING) {
                     //设备在连接中
                 }
 
-                gatt.discoverServices()
+                if (newState == BluetoothProfile.STATE_CONNECTED) {
+                    //设备已連結
+                    connectedAddress = gatt.device.address
+                    gatt.discoverServices()
+                }
 
             }
         }
@@ -64,7 +70,6 @@ class BluetoothLeService(context: Context, device: BluetoothDevice) {
             Log.e("LOG", "AAAA")
             for (i in gatt.services) {
                 for (ii in i.characteristics) {
-
                     Log.e("LOG", ii.uuid.toString())
                     if (ii.properties == BluetoothGattCharacteristic.PROPERTY_NOTIFY) {
                         if (gatt.setCharacteristicNotification(ii, true)) {
@@ -116,6 +121,8 @@ class BluetoothLeService(context: Context, device: BluetoothDevice) {
                 //写入数据失败,断开连接
                 Log.e("LOG", "write Error.")
                 gatt.disconnect()
+            }else {
+                Global.JTCData.deviceData.put(LCDCommand.NAME, gatt.device.name ?: "unknown")
             }
 
         }
@@ -177,13 +184,14 @@ class BluetoothLeService(context: Context, device: BluetoothDevice) {
                     val pass = x.replace(LCDCommand.INIT, "")
                     Global.userPassword.put(LCDCommand.INIT, pass)
                 }
-                x.startsWith("PV")
-                        || x.startsWith("EH")
-                        || x.startsWith("EL")
-                        || x.startsWith("CR")
-                        || x.startsWith("IH")
-                        || x.startsWith("IL")
-                        || x.startsWith("DP") -> {
+                x.startsWith(LCDCommand.PV)
+                        || x.startsWith(LCDCommand.EH)
+                        || x.startsWith(LCDCommand.EL)
+                        || x.startsWith(LCDCommand.CR)
+                        || x.startsWith(LCDCommand.IH)
+                        || x.startsWith(LCDCommand.IL)
+                        || x.startsWith(LCDCommand.DP)
+                        || x.startsWith(LCDCommand.SPK) -> {
                     val code = x.substring(0..2)
                     val value = x.codeToDoubleValue()
                     if (value != null) {
@@ -195,8 +203,8 @@ class BluetoothLeService(context: Context, device: BluetoothDevice) {
                     Global.JTCData.deviceData[LCDCommand.NAME] = name
                 }
                 x.startsWith(LCDCommand.INT) -> {
-                    val name = x.replace(LCDCommand.INT, "")
-                    Global.JTCData.deviceData[LCDCommand.NAME] = name
+                    val int = x.replace(LCDCommand.INT, "")
+                    Global.JTCData.deviceData[LCDCommand.NAME] = int.toInt()
                 }
                 x.startsWith("OVER") -> {
                     if (this@BluetoothLeService.status == BluetoothStatus.GETTING_ORIGINAL_DATA && delegate is SettingActivity) {

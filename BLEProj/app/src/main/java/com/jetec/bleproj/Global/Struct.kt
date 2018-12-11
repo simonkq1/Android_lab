@@ -47,8 +47,8 @@ class LCDCommand {
         val DP: String = "DP"
 
 
-        class SettingList {
-            companion object {
+        object SettingList {
+//            companion object {
                 val DEF: List<String> = listOf(LCDCommand.NAME, LCDCommand.SPK)
                 val SET: List<String> = listOf(LCDCommand.PV, LCDCommand.EH, LCDCommand.EL, LCDCommand.CR)
                 val L1: List<String> = listOf(LCDCommand.PV1, LCDCommand.EH1, LCDCommand.EL1, LCDCommand.CR1)
@@ -57,11 +57,11 @@ class LCDCommand {
                 val I: List<String> = listOf(LCDCommand.DP, LCDCommand.IH, LCDCommand.IL)
                 val L: List<String> = listOf(LCDCommand.INT)
                 val M: List<String> = listOf(LCDCommand.ADR)
-            }
+//            }
         }
 
-        class InitialSettings {
-            companion object {
+        object InitialSettings {
+//            companion object {
 
                 val DEF: Map<String, Any> = mapOf(
                         LCDCommand.NAME to "JTC",
@@ -95,7 +95,7 @@ class LCDCommand {
                         LCDCommand.ADR to 1.toDouble())
 
 
-            }
+//            }
 
         }
     }

@@ -14,4 +14,6 @@ class Global {
         var logger: JTCx40Data.Companion.Logger = JTCx40Data.Companion.Logger()
     }
 
+
+
 }

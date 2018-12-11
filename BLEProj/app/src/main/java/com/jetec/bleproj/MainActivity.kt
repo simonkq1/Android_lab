@@ -19,11 +19,10 @@ import android.view.MenuItem
 import com.jetec.bleproj.Global.*
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
+import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
 
-
-    var devices: ArrayList<BluetoothDevice> = arrayListOf()
     var menu: Menu? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,10 +33,8 @@ class MainActivity : AppCompatActivity() {
             val dialog: Dialog = ScanDialogViewController(this)
             dialog.show()
         }
-
     }
 
-    var devicesAdapter: DevicesAdapter? = null
 
     override fun onResume() {
         super.onResume()
@@ -107,6 +104,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        //220.29.131.156.202.164
 
         return super.onOptionsItemSelected(item)
     }

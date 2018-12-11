@@ -26,6 +26,7 @@ class DeviceModel(model: String) {
             }
             for (i in 0 until split[2].length) {
                 modelCode.add(split[2][i].toString())
+
                 var sets: ArrayList<String> = ArrayList(SettingList.SET)
                 for (s in 0 until sets.size) {
                     sets[s] = sets[s] + (i + 1).toString()

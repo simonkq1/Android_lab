@@ -1,5 +1,6 @@
 package com.jetec.bleproj.Global
 
+import android.content.Context
 import android.util.DisplayMetrics
 import android.view.Window
 
@@ -43,3 +44,4 @@ fun String.codeToDoubleValue(): Double? {
         return null
     }
 }
+
