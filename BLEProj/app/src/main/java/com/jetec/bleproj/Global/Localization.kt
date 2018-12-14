@@ -37,7 +37,9 @@ open class Localization {
                 "ROW3" to "Third",
                 "ROW4" to "Fourth",
                 "ROW5" to "Fifth",
-                "ROW6" to "Sixth"
+                "ROW6" to "Sixth",
+
+                "disconnect" to "Disconnect"
         )
     }
 
@@ -66,7 +68,9 @@ open class Localization {
                 "ROW3" to "第三排",
                 "ROW4" to "第四排",
                 "ROW5" to "第五排",
-                "ROW6" to "第六排"
+                "ROW6" to "第六排",
+
+                "disconnect" to "中斷連線"
         )
     }
 
@@ -94,7 +98,9 @@ open class Localization {
                 "ROW3" to "第三排",
                 "ROW4" to "第四排",
                 "ROW5" to "第五排",
-                "ROW6" to "第六排"
+                "ROW6" to "第六排",
+
+                "disconnect" to "中断连线"
         )
     }
 
@@ -121,7 +127,7 @@ fun String.localized(): String {
     val locale = Locale.getDefault()
 
     val localize = Localization.DEFAULT
-    when  {
+    when {
         locale.toLanguageTag().contains("en") -> {
             return localize.getValue(this, Localization.Companion.Code.en)
         }
@@ -132,7 +138,9 @@ fun String.localized(): String {
         }
 
         locale.toLanguageTag().contains("zh") &&
-                (locale.toLanguageTag().contains("CN") || locale.toLanguageTag().contains("Hans")) -> {
+                (locale.toLanguageTag().contains("CN")
+                        || locale.toLanguageTag().contains("OM")
+                        || locale.toLanguageTag().contains("Hans")) -> {
             return localize.getValue(this, Localization.Companion.Code.zh_CN)
         }
 

@@ -1,6 +1,7 @@
 package com.jetec.bleproj.Global.ModelClass
 
 import android.util.Log
+import com.jetec.bleproj.Global.DataLogFormat
 import com.jetec.bleproj.Global.InitialSettings
 import com.jetec.bleproj.Global.SettingList
 
@@ -12,6 +13,7 @@ class DeviceModel(model: String) {
     var settingList: ArrayList<String> = ArrayList(SettingList.DEF)
     var defaultSettings: MutableMap<String, Any> = mutableMapOf()
     var modelCode: ArrayList<String> = arrayListOf()
+    var logPattern: String = ""
 
     init {
         analysis()
@@ -21,6 +23,7 @@ class DeviceModel(model: String) {
         if (model.startsWith("BT")) {
             val split: List<String> = model.split("-")
             this.deviceRowNumber = split[1].toInt()
+            this.logPattern += "^"
             for ((k, v) in InitialSettings.DEF) {
                 defaultSettings.put(k, v)
             }
@@ -39,6 +42,7 @@ class DeviceModel(model: String) {
                             defaultSettings.put((k + (i + 1).toString()), v)
                         }
                         this.settingList.addAll(sets)
+                        this.logPattern += DataLogFormat.T
                     }
                     'H' -> {
                         val ds = InitialSettings.H
@@ -46,6 +50,7 @@ class DeviceModel(model: String) {
                             defaultSettings.put((k + (i + 1).toString()), v)
                         }
                         this.settingList.addAll(sets)
+                        this.logPattern += DataLogFormat.H
                     }
                     'C' -> {
                         val ds = InitialSettings.C
@@ -53,6 +58,7 @@ class DeviceModel(model: String) {
                             defaultSettings.put((k + (i + 1).toString()), v)
                         }
                         this.settingList.addAll(sets)
+                        this.logPattern += DataLogFormat.C
                     }
                     'I' -> {
                         val ds = InitialSettings.I
@@ -64,9 +70,13 @@ class DeviceModel(model: String) {
                             defaultSettings.put((k + (i + 1).toString()), v)
                         }
                         this.settingList.addAll(sets)
+
+                        this.logPattern += DataLogFormat.I
                     }
                     'V' -> {
                         this.settingList.addAll(sets)
+
+                        this.logPattern += DataLogFormat.V
                     }
                     'L' -> {
                         val ds = InitialSettings.L
@@ -86,7 +96,10 @@ class DeviceModel(model: String) {
             }
             Log.e("LOG", this.settingList.toString())
             Log.e("LOG", this.defaultSettings.toString())
+            this.logPattern += "$"
+
         }
+        Log.e("LOG", this.logPattern)
     }
 
 

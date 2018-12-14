@@ -30,6 +30,7 @@ class BluetoothLeService(context: Context, device: BluetoothDevice) {
     var delegate: Context? = null
     var status: BluetoothStatus = BluetoothStatus.NONE
     var connectedAddress: String by Preference(context, "connectedAddress", "")
+    var downloadCount: Int = 0
 
     val gattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
 
@@ -61,6 +62,7 @@ class BluetoothLeService(context: Context, device: BluetoothDevice) {
 
             }
         }
+
 
         override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
             super.onServicesDiscovered(gatt, status)
@@ -121,7 +123,7 @@ class BluetoothLeService(context: Context, device: BluetoothDevice) {
                 //写入数据失败,断开连接
                 Log.e("LOG", "write Error.")
                 gatt.disconnect()
-            }else {
+            } else {
                 Global.JTCData.deviceData.put(LCDCommand.NAME, gatt.device.name ?: "unknown")
             }
 
@@ -211,6 +213,14 @@ class BluetoothLeService(context: Context, device: BluetoothDevice) {
                         (delegate as SettingActivity).reloadData()
                         this@BluetoothLeService.status = BluetoothStatus.NONE
                     }
+                }
+                x.startsWith("COUNT") -> {
+                    downloadCount = 0
+                }
+
+                x.matches(Regex(Global.JTCData.deviceModel.logPattern)) -> {
+                    downloadCount += 1
+                    Log.e("LOG", "ID: " + downloadCount.toString() + " : " + x)
                 }
 
                 else -> {

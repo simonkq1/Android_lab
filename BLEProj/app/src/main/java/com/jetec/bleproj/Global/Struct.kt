@@ -48,7 +48,6 @@ class LCDCommand {
 
 
         object SettingList {
-//            companion object {
                 val DEF: List<String> = listOf(LCDCommand.NAME, LCDCommand.SPK)
                 val SET: List<String> = listOf(LCDCommand.PV, LCDCommand.EH, LCDCommand.EL, LCDCommand.CR)
                 val L1: List<String> = listOf(LCDCommand.PV1, LCDCommand.EH1, LCDCommand.EL1, LCDCommand.CR1)
@@ -57,11 +56,9 @@ class LCDCommand {
                 val I: List<String> = listOf(LCDCommand.DP, LCDCommand.IH, LCDCommand.IL)
                 val L: List<String> = listOf(LCDCommand.INT)
                 val M: List<String> = listOf(LCDCommand.ADR)
-//            }
         }
 
         object InitialSettings {
-//            companion object {
 
                 val DEF: Map<String, Any> = mapOf(
                         LCDCommand.NAME to "JTC",
@@ -95,11 +92,23 @@ class LCDCommand {
                         LCDCommand.ADR to 1.toDouble())
 
 
-//            }
-
         }
     }
+}
 
+
+object DataLogFormat {
+     val T: String                                            = "([+|-]{1}\\d{5})"
+     val H: String                                            = "([+|-]{1}\\d{5})"
+     val C: String                                            = "([+|-]{1}\\d{5})"
+     val I: String                                            = "([+|-]{1}\\d{5})"
+     val V: String                                            = "([+|-]{1}\\d{5})"
+
+
+     val dateFormat: String                                   = "'DATE'YYMMdd"
+     val timeFormat: String                                   = "'TIME'HHmmss"
+     val startDateFormat: String                              = "YYYYMMddHHmmss"
+     val logDateFormat: String                                = "YYYY-MM-dd' 'HH:mm:ss"
 }
 
 

@@ -23,7 +23,6 @@ import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
 
-    var menu: Menu? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +32,11 @@ class MainActivity : AppCompatActivity() {
             val dialog: Dialog = ScanDialogViewController(this)
             dialog.show()
         }
+
+        var cal = Calendar.getInstance()
+        val nd = cal.time
+        cal.add(Calendar.SECOND, 30)
+        Log.e("LOG", cal.time.toString())
     }
 
 
@@ -90,36 +94,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu)
-        this.menu = menu
-        return super.onCreateOptionsMenu(menu)
-
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when (item!!.itemId) {
-            R.id.disconnect -> {
-                disconnect()
-            }
-        }
-
-        //220.29.131.156.202.164
-
-        return super.onOptionsItemSelected(item)
-    }
-
-
-    fun disconnect() {
-        if (!Global.isConnected) {
-            return
-        }
-        Global.service!!.connectedGATT!!.setCharacteristicNotification(Global.service!!.connectedCharacteristic!!, false)
-        Global.service!!.connectedGATT!!.disconnect()
-        Global.service = null
-        Global.isConnected = false
-    }
-
 
     fun locationCheck() {
         val LOCATION_RESULT_CODE: Int = 0
@@ -146,7 +120,6 @@ class MainActivity : AppCompatActivity() {
                 return
 
             }
-
         }
     }
 

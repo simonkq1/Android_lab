@@ -89,12 +89,9 @@ class SettingsAdapter(context: Context,
                 }
                 settingValue.text = valueText
             } else {
-                settingValue.text = "not found"
+                settingValue.text = " "
             }
         }
-
-
-
         return itemView
     }
 

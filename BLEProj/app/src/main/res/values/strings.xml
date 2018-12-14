@@ -1,21 +1,4 @@
 <resources>
     <string name="app_name">BLEProj</string>
-    <string name="NAME">Device Name</string>
-    <string name="PV">Offset</string>
-    <string name="EH">Alarm Max</string>
-    <string name="EL">Alarm Min</string>
-    <string name="CR">Color Change</string>
-    <string name="IH">Max Range</string>
-    <string name="IL">Min Range</string>
-    <string name="DP">Decimal Point</string>
-    <string name="SPK">Alert</string>
-    <string name="ADR">Address</string>
-    <string name="INTER">Log Interval</string>
-
-    <string name="R1">First</string>
-    <string name="R2">Second</string>
-    <string name="R3">Third</string>
-    <string name="R4">Fourth</string>
-    <string name="R5">Fifth</string>
-    <string name="R6">Sixth</string>
+    <string name="disconnect">Disconnect</string>
 </resources>

@@ -1,11 +1,13 @@
 package com.jetec.bleproj
 
+import android.app.Activity
 import android.app.Dialog
 import android.bluetooth.*
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.content.ContextCompat.startActivity
+import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Window
 import android.view.WindowManager
@@ -23,127 +25,8 @@ class ScanDialogViewController(context: Context) : Dialog(context) {
     var mBluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
     var devices: ArrayList<BluetoothDevice> = arrayListOf()
     var bleScanCallback: BluetoothAdapter.LeScanCallback? = null
-    var gatt: BluetoothGatt? = null
-    var connectedCharacteristic: BluetoothGattCharacteristic? = null
-    var writableCharacteristic: BluetoothGattCharacteristic? = null
-    var service: BluetoothLeService? = null
     var connectedAddress: String? by Preference(context, "connectedAddress", "Key Not Found")
-/*
-    val gattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
 
-        override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
-            super.onConnectionStateChange(gatt, status, newState)
-            if (gatt == null) {
-                return
-            }
-            this@ScanDialogViewController.gatt = gatt
-
-            if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                gatt.close()
-            }
-            if (newState == BluetoothProfile.STATE_CONNECTING) {
-                //设备在连接中
-            }
-
-            gatt.discoverServices()
-        }
-
-        override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
-            super.onServicesDiscovered(gatt, status)
-            if (gatt == null) {
-                return
-            }
-            Log.e("LOG", "AAAA")
-            for (i in gatt.services) {
-                for (ii in i.characteristics) {
-
-                    Log.e("LOG", ii.uuid.toString())
-                    if (ii.properties == BluetoothGattCharacteristic.PROPERTY_NOTIFY) {
-
-                        if (gatt.setCharacteristicNotification(ii, true)) {
-                            this@ScanDialogViewController.connectedCharacteristic = ii
-                            this@ScanDialogViewController.writableCharacteristic = i.getCharacteristic(UUID.fromString(UART_UUIDS.uartRXCharacteristicUUIDString))
-
-                            if (this@ScanDialogViewController.writableCharacteristic == null) {
-                                Log.e("LOG", "C ERROR")
-                                return
-                            }
-//                            Log.e("LOG", this@ScanDialogViewController.writableCharacteristic!!.uuid.toString())
-//                            Log.e("LOG", ii.uuid.toString())
-                            val descriptor: BluetoothGattDescriptor = ii.getDescriptor(UUID.fromString(UART_UUIDS.TXDescriptor))
-
-                            descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                            if (gatt.writeDescriptor(descriptor)) {
-
-                                Log.e("LOG", "Jetec Success")
-                            } else {
-
-                                Log.e("LOG", "Jetec Error")
-                            }
-                            Log.e("LOG", "is Notification")
-
-                            return
-                        } else {
-                            Log.e("LOG", "Notification Failed")
-                        }
-                    } else {
-                        Log.e("LOG", "ERROR D")
-
-                    }
-                }
-            }
-            gatt.disconnect()
-        }
-
-        override fun onDescriptorWrite(gatt: BluetoothGatt?, descriptor: BluetoothGattDescriptor?, status: Int) {
-            super.onDescriptorWrite(gatt, descriptor, status)
-            if (this@ScanDialogViewController.writableCharacteristic == null || gatt == null) {
-                //获取特征失败,直接断开连接
-
-                gatt?.disconnect()
-                return
-            }
-
-            //mSendValue 即要往硬件发送的数据
-            //如果这里写入数据成功会回调下面的 onCharacteristicWrite() 方法
-            this@ScanDialogViewController.writableCharacteristic!!.value = "Jetec".toByteArray()
-            if (!gatt.writeCharacteristic(this@ScanDialogViewController.writableCharacteristic)) {
-                //写入数据失败,断开连接
-                gatt.disconnect()
-            }
-
-        }
-
-
-        override fun onDescriptorRead(gatt: BluetoothGatt?, descriptor: BluetoothGattDescriptor?, status: Int) {
-            super.onDescriptorRead(gatt, descriptor, status)
-            if (descriptor == null) {
-                return
-            }
-            Log.e("LOG", descriptor.value.toString())
-        }
-
-        override fun onCharacteristicWrite(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?, status: Int) {
-            super.onCharacteristicWrite(gatt, characteristic, status)
-            Log.e("LOG", "onCharacteristicWrite")
-        }
-
-        override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
-            super.onCharacteristicChanged(gatt, characteristic)
-
-            Log.e("LOG", characteristic!!.getStringValue(0))
-            Log.e("LOG", "onCharacteristicChanged")
-        }
-
-
-        override fun onCharacteristicRead(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?, status: Int) {
-            super.onCharacteristicRead(gatt, characteristic, status)
-            Log.e("LOG", "onCharacteristicRead")
-        }
-
-
-    }
-*/
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -222,6 +105,7 @@ class ScanDialogViewController(context: Context) : Dialog(context) {
 
             this.dismiss()
             context.startActivity<SettingActivity>()
+
         }else {
             // connect Failed
 
